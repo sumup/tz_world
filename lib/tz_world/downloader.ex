@@ -123,10 +123,14 @@ defmodule TzWorld.Downloader do
     |> get_url
   end
 
+  @httpc_opts Application.compile_env(:tz_world, :httpc_opts, [])
+
   defp get_url(url) do
     require Logger
 
-    case  :httpc.request(:get, {url, headers()}, https_opts(), []) do
+    :httpc.set_options(@httpc_opts)
+
+    case :httpc.request(:get, {url, headers()}, httpc_https_opts(), []) do
       {:ok, {{_version, 200, 'OK'}, _headers, body}} ->
         {:ok, :erlang.list_to_binary(body)}
 
@@ -228,7 +232,7 @@ defmodule TzWorld.Downloader do
     file
   end
 
-  defp https_opts do
+  defp httpc_https_opts do
     [ssl:
       [
         verify: :verify_peer,
@@ -239,5 +243,4 @@ defmodule TzWorld.Downloader do
       ]
     ]
   end
-
 end
